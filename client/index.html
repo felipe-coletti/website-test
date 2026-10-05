@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Felipe Coletti</title>
-		<meta name="description" content="The definitive (and goth) portfolio" />
-	</head>
-	<body>
-		<div id="root"></div>
-		<script type="module" src="/src/main.tsx"></script>
-	</body>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The definitive (and goth) portfolio">
+    <title>Felipe Coletti</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <link rel="stylesheet" href="/src/styles/themes.css">
+    <link rel="stylesheet" href="/src/styles/global.css">
+
+    <script src="/src/scripts/theme.js"></script>
+
+    <script type="module" src="/src/components/header/fc-header.js"></script>
+    <script type="module" src="/src/components/router/fc-router.js"></script>
+</head>
+<body>
+    <fc-header></fc-header>
+    <fc-router></fc-router>
+</body>
 </html>

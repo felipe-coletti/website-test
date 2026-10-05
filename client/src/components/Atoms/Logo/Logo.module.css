@@ -1,8 +1,0 @@
-.logoContainer {
-	display: flex;
-}
-
-.logo {
-	color: var(--color-text-primary);
-	font-size: 2rem;
-}

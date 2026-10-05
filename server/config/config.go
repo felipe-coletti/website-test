@@ -14,7 +14,7 @@ var DB *gorm.DB
 
 func StartDB() {
 	if err := godotenv.Load(); err != nil {
-		log.Println("Aviso: .env não encontrado")
+		log.Println("Warning: .env file not found")
 	}
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
@@ -29,8 +29,8 @@ func StartDB() {
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Erro ao conectar no banco: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	log.Println("Conexão com PostgreSQL estabelecida!")
+	log.Println("PostgreSQL connection established")
 }

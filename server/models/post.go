@@ -10,5 +10,5 @@ type Post struct {
 	IsPublished bool       `json:"isPublished"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	PublishedAt *time.Time `json:"publishedAt"`
-	Tags        []Tag      `gorm:"many2many:posts_tags;"`
+	Tags        []Tag      `json:"tags" gorm:"many2many:posts_tags;"`
 }

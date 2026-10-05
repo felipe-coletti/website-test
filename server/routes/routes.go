@@ -13,4 +13,5 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/api/posts/:slug", handlers.GetPostBySlug)
 	r.GET("/api/works", handlers.GetWorks)
 	r.GET("/api/works/:slug", handlers.GetWorkBySlug)
+	r.GET("/api/content/:key", handlers.GetContentByKey)
 }
