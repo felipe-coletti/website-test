@@ -117,6 +117,28 @@ func GetContentByKey(c *gin.Context) {
 	c.JSON(http.StatusOK, content)
 }
 
+func GetAbout(c *gin.Context) {
+	var about models.About
+
+	if err := config.DB.First(&about, 1).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "About not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, about)
+}
+
+func GetContactLinks(c *gin.Context) {
+	var links []models.ContactLink
+
+	if err := config.DB.Order("position, id").Find(&links).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch contact links"})
+		return
+	}
+
+	c.JSON(http.StatusOK, links)
+}
+
 func GetPostsByTag(c *gin.Context) {
 	tagSlug := c.Query("tag")
 

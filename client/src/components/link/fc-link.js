@@ -69,7 +69,8 @@ class Link extends HTMLElement {
     _update() {
         this._anchor.setAttribute('href', this.to)
 
-        if (isInternal(this.to)) {
+        // mailto: e afins não abrem página, então não ganham nova aba
+        if (isInternal(this.to) || !/^https?:/i.test(this.to)) {
             this._anchor.removeAttribute('target')
             this._anchor.removeAttribute('rel')
         } else {

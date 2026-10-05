@@ -70,7 +70,7 @@ func serveClient(r *gin.Engine) {
 
 	r.NoRoute(func(c *gin.Context) {
 		if c.Request.URL.Path == "/api" || strings.HasPrefix(c.Request.URL.Path, "/api/") {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Rota não encontrada"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "Route not found"})
 			return
 		}
 

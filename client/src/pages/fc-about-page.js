@@ -1,17 +1,15 @@
-import { baseStyles, pageStyles } from '../styles/base.js'
+import { DetailPage } from '../templates/detail-page.js'
+import { api } from '../scripts/api.js'
+import { formatDate } from '../scripts/format.js'
 
-class AboutPage extends HTMLElement {
-    constructor() {
-        super()
+class AboutPage extends DetailPage {
+    fetchItem() {
+        return api.about.get()
+    }
 
-        const shadow = this.attachShadow({ mode: 'open' })
-
-        shadow.adoptedStyleSheets = [baseStyles, pageStyles]
-        shadow.innerHTML = `
-            <main class="page section">
-                <h1>About</h1>
-            </main>
-        `
+    formatMeta(about) {
+        const date = formatDate(about.updatedAt)
+        return date ? `Updated ${date}` : ''
     }
 }
 
