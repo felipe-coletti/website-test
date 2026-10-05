@@ -19,7 +19,7 @@ func main() {
 	config.StartDB()
 
 	if err := godotenv.Load(); err != nil {
-		log.Println("Aviso: .env não encontrado")
+		log.Println("Warning: .env file not found")
 	}
 
 	clientURL := os.Getenv("CLIENT_URL")
@@ -49,11 +49,11 @@ func main() {
 		port = ":" + port
 	}
 
-	log.Printf("Servidor rodando em http://localhost%s", port)
-	log.Printf("CORS habilitado para: %s", clientURL)
+	log.Printf("Server running at http://localhost%s", port)
+	log.Printf("CORS enabled for: %s", clientURL)
 
 	if err := r.Run(port); err != nil {
-		log.Fatalf("Erro ao iniciar servidor: %v", err)
+		log.Fatalf("Failed to start server: %v", err)
 	}
 }
 
@@ -82,5 +82,5 @@ func serveClient(r *gin.Engine) {
 		c.File(indexFile)
 	})
 
-	log.Printf("Servindo client a partir de: %s", clientDir)
+	log.Printf("Serving client from: %s", clientDir)
 }
