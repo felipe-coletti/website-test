@@ -11,7 +11,7 @@ import (
 func GetTags(c *gin.Context) {
 	var tags []models.Tag
 	if err := config.DB.Find(&tags).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar tags"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tags"})
 		return
 	}
 	c.JSON(http.StatusOK, tags)
@@ -30,12 +30,12 @@ func GetPosts(c *gin.Context) {
 			Preload("Tags").
 			Order("posts.published_at DESC").
 			Find(&posts).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar posts"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
 			return
 		}
 	} else {
 		if err := config.DB.Preload("Tags").Where("is_published = ?", true).Order("published_at DESC").Find(&posts).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar posts"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
 			return
 		}
 	}
@@ -56,12 +56,12 @@ func GetWorks(c *gin.Context) {
 			Preload("Tags").
 			Order("works.published_at DESC").
 			Find(&works).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
 			return
 		}
 	} else {
 		if err := config.DB.Preload("Tags").Where("is_published = ?", true).Order("published_at DESC").Find(&works).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
 			return
 		}
 	}
@@ -74,7 +74,7 @@ func GetTagBySlug(c *gin.Context) {
 	var tag models.Tag
 
 	if err := config.DB.Where("slug = ?", slug).First(&tag).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Tag não encontrada"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tag not found"})
 		return
 	}
 
@@ -86,7 +86,7 @@ func GetPostBySlug(c *gin.Context) {
 	var post models.Post
 
 	if err := config.DB.Preload("Tags").Where("slug = ?", slug).First(&post).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Post não encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
 		return
 	}
 
@@ -98,7 +98,7 @@ func GetWorkBySlug(c *gin.Context) {
 	var work models.Work
 
 	if err := config.DB.Preload("Tags").Where("slug = ?", slug).First(&work).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Projeto não encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
 		return
 	}
 
@@ -110,7 +110,7 @@ func GetContentByKey(c *gin.Context) {
 	var content models.SiteContent
 
 	if err := config.DB.Where("key = ?", key).First(&content).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Conteúdo não encontrado"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Content not found"})
 		return
 	}
 
@@ -121,7 +121,7 @@ func GetPostsByTag(c *gin.Context) {
 	tagSlug := c.Query("tag")
 
 	if tagSlug == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Parâmetro 'tag' é obrigatório (ex: ?tag=react)"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'tag' is required (e.g. ?tag=react)"})
 		return
 	}
 
@@ -135,7 +135,7 @@ func GetPostsByTag(c *gin.Context) {
 		Preload("Tags").
 		Find(&posts).Error; err != nil {
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar posts"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
 		return
 	}
 
@@ -146,7 +146,7 @@ func GetWorksByTag(c *gin.Context) {
 	tagSlug := c.Query("tag")
 
 	if tagSlug == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Parâmetro 'tag' é obrigatório"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'tag' is required"})
 		return
 	}
 
@@ -160,7 +160,7 @@ func GetWorksByTag(c *gin.Context) {
 		Preload("Tags").
 		Find(&works).Error; err != nil {
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar projetos"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
 		return
 	}
 
