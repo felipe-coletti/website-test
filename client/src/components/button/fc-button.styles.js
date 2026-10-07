@@ -19,7 +19,6 @@ sheet.replaceSync(`
         padding-inline: 1.25rem;
         text-transform: uppercase;
         transition: background 0.2s ease;
-        font-weight: 600;
     }
 
     button.filled {
