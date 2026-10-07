@@ -3,6 +3,8 @@ import { api } from '../scripts/api.js'
 import { formatDate } from '../scripts/format.js'
 
 class ProjectPage extends DetailPage {
+    static listPath = '/work'
+
     fetchItem(slug) {
         return api.works.get(slug)
     }

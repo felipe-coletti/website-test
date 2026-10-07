@@ -4,6 +4,12 @@ Sem build e sem dependências: o navegador carrega os módulos ES diretamente.
 O servidor Go (`../server`) serve estes arquivos e devolve o `index.html` para qualquer rota
 que não seja `/api/*`, e o `fc-router` resolve a rota no navegador.
 
+Antes de entregar o `index.html`, o servidor preenche `<title>`, `description` e as tags Open Graph
+da rota (título e trecho do post ou projeto em `/blog/:slug` e `/work/:slug`) e responde 404 para
+rotas inexistentes e conteúdos não publicados. Assim buscadores e prévias de links (WhatsApp,
+LinkedIn...), que não executam JavaScript, veem os dados certos. As rotas conhecidas pelo servidor
+ficam em `server/handlers/page.go` e precisam acompanhar `src/routes.js`.
+
 ## Estrutura
 
 ```
@@ -62,7 +68,11 @@ Slugs: posts usam um slug legível escrito à mão (`/blog/leaving-react`); proj
 aleatório de 6 caracteres `[0-9a-z]` gerado pelo banco (`/work/k3x9a2`), então a URL não muda se o
 projeto for renomeado. Ver `server/db/schema.sql`.
 
-Na busca das páginas de listagem, `tag:slug` filtra no servidor; qualquer outro texto filtra pelo título.
+Na busca das páginas de listagem, `tag:slug` (em qualquer posição, sem diferenciar maiúsculas) filtra no
+servidor e o resto do texto filtra pelo título, ex: `tag:go backend`. Se existir uma tag com exatamente
+o slug digitado, só ela vale; senão, valem as tags cujo slug contém o trecho (`tag:web-comp` encontra
+`web-components`). As tags nas páginas de post e projeto
+são links para a listagem já filtrada (`/blog?tag=go`, `/work?tag=go`).
 
 ## Rodando
 
@@ -79,8 +89,10 @@ Banco criado antes de `server/db/schema.sql` existir? Rode as migrações:
 - `server/db/migrate-work-slugs.sql`: troca os slugs dos projetos por IDs (muda as URLs dos projetos existentes)
 - `server/db/migrate-site-content.sql`: cria a tabela `site_content` com o texto de boas-vindas
 - `server/db/migrate-about-contact.sql`: cria as tabelas `about` e `contact_links`
+- `server/db/migrate-tag-slugs.sql`: passa a exigir slugs de tag só com minúsculas, números e hífens
 
-Servidor (configure `server/.env` com `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSLMODE`):
+Servidor (configure `server/.env` com `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSLMODE`
+e, em produção, `SITE_URL`, ex: `https://felipecoletti.com`, usada em `og:url` e no link canônico):
 
 ```bash
 cd server && go run .   # http://localhost:8080

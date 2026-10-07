@@ -1,5 +1,6 @@
 import { baseStyles, pageStyles } from '../styles/base.js'
 import { pageTitle } from '../routes.js'
+import { handleLinkClick } from '../scripts/navigation.js'
 
 const sheet = new CSSStyleSheet()
 
@@ -20,10 +21,18 @@ sheet.replaceSync(`
     .tag {
         border: 1px solid var(--color-border);
         color: var(--color-text-secondary);
+        display: block;
         font-size: 0.75rem;
         letter-spacing: 0.05rem;
         padding: 0.125rem 0.5rem;
+        text-decoration: none;
         text-transform: uppercase;
+        transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .tag:hover {
+        border-color: var(--color-text-primary);
+        color: var(--color-text-primary);
     }
 
     .content {
@@ -53,6 +62,9 @@ sheet.replaceSync(`
 `)
 
 export class DetailPage extends HTMLElement {
+    // Listagem para onde as tags levam (ex: '/blog' → /blog?tag=slug)
+    static listPath = ''
+
     constructor() {
         super()
 
@@ -123,10 +135,18 @@ export class DetailPage extends HTMLElement {
         this._meta.textContent = meta
         this._meta.hidden = !meta
 
+        const { listPath } = this.constructor
         const tags = (item.tags ?? []).map(tag => {
             const li = document.createElement('li')
-            li.className = 'tag'
-            li.textContent = tag.name
+            const link = document.createElement('a')
+            const href = `${listPath}?tag=${encodeURIComponent(tag.slug)}`
+
+            link.className = 'tag'
+            link.href = href
+            link.textContent = tag.name
+            link.addEventListener('click', (e) => handleLinkClick(e, href))
+
+            li.append(link)
             return li
         })
         this._tags.replaceChildren(...tags)

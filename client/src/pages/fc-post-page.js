@@ -3,6 +3,8 @@ import { api } from '../scripts/api.js'
 import { formatPostMeta } from '../scripts/format.js'
 
 class PostPage extends DetailPage {
+    static listPath = '/blog'
+
     fetchItem(slug) {
         return api.posts.get(slug)
     }

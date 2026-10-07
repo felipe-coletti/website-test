@@ -18,6 +18,10 @@ sheet.replaceSync(`
     #outlet > * {
         flex: 1;
     }
+
+    #outlet > *:focus {
+        outline: none;
+    }
 `)
 
 class Router extends HTMLElement {
@@ -31,6 +35,7 @@ class Router extends HTMLElement {
 
         this._outlet = shadow.getElementById('outlet')
         this._renderId = 0
+        this._hasRendered = false
 
         this._handlePopState = () => this._render()
         this._handleNavigate = (e) => this.navigate(e.detail.path)
@@ -82,6 +87,15 @@ class Router extends HTMLElement {
 
         document.title = pageTitle(route.title)
         window.scrollTo(0, 0)
+
+        // Na navegação, leva o foco para a nova página (leitores de tela anunciam a troca);
+        // no primeiro carregamento o navegador já faz isso
+        if (this._hasRendered) {
+            page.tabIndex = -1
+            page.focus({ preventScroll: true })
+        }
+
+        this._hasRendered = true
 
         window.dispatchEvent(new CustomEvent(ROUTE_RENDERED_EVENT, { detail: { path, params } }))
     }

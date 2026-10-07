@@ -64,6 +64,15 @@ export class ListPage extends HTMLElement {
     connectedCallback() {
         if (this._initialized) return
         this._initialized = true
+
+        // Links de tag chegam como /blog?tag=slug
+        const tag = new URLSearchParams(window.location.search).get('tag')
+
+        if (tag) {
+            this._input.value = `tag:${tag} `
+            this._tag = this._parseQuery(this._input.value).tag
+        }
+
         this._load()
     }
 
@@ -81,14 +90,13 @@ export class ListPage extends HTMLElement {
 
     renderItems() {}
 
+    // "tag:slug" em qualquer posição filtra no servidor; o resto do texto filtra pelo título
     _parseQuery(query) {
-        const trimmed = query.trim()
+        const match = query.match(/(?:^|\s)tag:(\S*)/i)
+        const tag = match?.[1].toLowerCase() || null
+        const text = (match ? query.replace(match[0], ' ') : query).trim().toLowerCase()
 
-        if (trimmed.startsWith('tag:')) {
-            return { tag: trimmed.slice(4).trim() || null, text: '' }
-        }
-
-        return { tag: null, text: trimmed.toLowerCase() }
+        return { tag, text }
     }
 
     _handleQuery(query) {

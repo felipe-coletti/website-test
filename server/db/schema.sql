@@ -1,7 +1,7 @@
 CREATE TABLE tags (
     id   SERIAL PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,
-    slug TEXT UNIQUE NOT NULL
+    slug TEXT UNIQUE NOT NULL CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')
 );
 
 CREATE TABLE posts (
