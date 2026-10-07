@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 	"website-backend/config"
 	"website-backend/models"
 
@@ -26,55 +27,50 @@ func GetTags(c *gin.Context) {
 	c.JSON(http.StatusOK, tags)
 }
 
+// Filtro de tag. Se existir uma tag com exatamente esse slug, só ela vale (links de tag e buscas completas);
+// senão, valem as tags cujo slug contém o trecho digitado (ex: "web-comp" encontra web-components).
+func taggedWith(table string, joinTable string, foreignKey string, query string) func(*gorm.DB) *gorm.DB {
+	query = strings.ToLower(strings.TrimSpace(query))
+	pattern := "%" + likeEscaper.Replace(query) + "%"
+
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(table+".id IN (SELECT "+foreignKey+" FROM "+joinTable+" WHERE tag_id IN ("+
+			"SELECT id FROM tags WHERE CASE WHEN EXISTS (SELECT 1 FROM tags WHERE slug = ?) THEN slug = ? ELSE slug LIKE ? END))",
+			query, query, pattern)
+	}
+}
+
+var likeEscaper = strings.NewReplacer(`\`, `\\`, "%", `\%`, "_", `\_`)
+
 func GetPosts(c *gin.Context) {
-	tagSlug := c.Query("tag")
 	var posts []models.Post
 
-	if tagSlug != "" {
-		if err := config.DB.
-			Table("posts").
-			Joins("JOIN posts_tags ON posts.id = posts_tags.post_id").
-			Joins("JOIN tags ON posts_tags.tag_id = tags.id").
-			Where("tags.slug = ?", tagSlug).
-			Scopes(published("posts")).
-			Preload("Tags").
-			Order("posts.published_at DESC").
-			Find(&posts).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
-			return
-		}
-	} else {
-		if err := config.DB.Preload("Tags").Scopes(published("posts")).Order("published_at DESC").Find(&posts).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
-			return
-		}
+	query := config.DB.Preload("Tags").Scopes(published("posts"))
+
+	if tag := c.Query("tag"); tag != "" {
+		query = query.Scopes(taggedWith("posts", "posts_tags", "post_id", tag))
+	}
+
+	if err := query.Order("published_at DESC").Find(&posts).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
+		return
 	}
 
 	c.JSON(http.StatusOK, posts)
 }
 
 func GetWorks(c *gin.Context) {
-	tagSlug := c.Query("tag")
 	var works []models.Work
 
-	if tagSlug != "" {
-		if err := config.DB.
-			Table("works").
-			Joins("JOIN works_tags ON works.id = works_tags.work_id").
-			Joins("JOIN tags ON works_tags.tag_id = tags.id").
-			Where("tags.slug = ?", tagSlug).
-			Scopes(published("works")).
-			Preload("Tags").
-			Order("works.published_at DESC").
-			Find(&works).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
-			return
-		}
-	} else {
-		if err := config.DB.Preload("Tags").Scopes(published("works")).Order("published_at DESC").Find(&works).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
-			return
-		}
+	query := config.DB.Preload("Tags").Scopes(published("works"))
+
+	if tag := c.Query("tag"); tag != "" {
+		query = query.Scopes(taggedWith("works", "works_tags", "work_id", tag))
+	}
+
+	if err := query.Order("published_at DESC").Find(&works).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
+		return
 	}
 
 	c.JSON(http.StatusOK, works)

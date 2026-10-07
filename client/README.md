@@ -69,7 +69,9 @@ aleatório de 6 caracteres `[0-9a-z]` gerado pelo banco (`/work/k3x9a2`), então
 projeto for renomeado. Ver `server/db/schema.sql`.
 
 Na busca das páginas de listagem, `tag:slug` (em qualquer posição, sem diferenciar maiúsculas) filtra no
-servidor e o resto do texto filtra pelo título, ex: `tag:go backend`. As tags nas páginas de post e projeto
+servidor e o resto do texto filtra pelo título, ex: `tag:go backend`. Se existir uma tag com exatamente
+o slug digitado, só ela vale; senão, valem as tags cujo slug contém o trecho (`tag:web-comp` encontra
+`web-components`). As tags nas páginas de post e projeto
 são links para a listagem já filtrada (`/blog?tag=go`, `/work?tag=go`).
 
 ## Rodando
