@@ -6,7 +6,16 @@ import (
 	"website-backend/models"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
+
+// Só o que já foi publicado: marcado como publicado e com a data de publicação já alcançada.
+// Rascunhos e publicações agendadas para o futuro ficam de fora.
+func published(table string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(table+".is_published = ? AND "+table+".published_at <= now()", true)
+	}
+}
 
 func GetTags(c *gin.Context) {
 	var tags []models.Tag
@@ -26,7 +35,8 @@ func GetPosts(c *gin.Context) {
 			Table("posts").
 			Joins("JOIN posts_tags ON posts.id = posts_tags.post_id").
 			Joins("JOIN tags ON posts_tags.tag_id = tags.id").
-			Where("tags.slug = ? AND posts.is_published = ?", tagSlug, true).
+			Where("tags.slug = ?", tagSlug).
+			Scopes(published("posts")).
 			Preload("Tags").
 			Order("posts.published_at DESC").
 			Find(&posts).Error; err != nil {
@@ -34,7 +44,7 @@ func GetPosts(c *gin.Context) {
 			return
 		}
 	} else {
-		if err := config.DB.Preload("Tags").Where("is_published = ?", true).Order("published_at DESC").Find(&posts).Error; err != nil {
+		if err := config.DB.Preload("Tags").Scopes(published("posts")).Order("published_at DESC").Find(&posts).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
 			return
 		}
@@ -52,7 +62,8 @@ func GetWorks(c *gin.Context) {
 			Table("works").
 			Joins("JOIN works_tags ON works.id = works_tags.work_id").
 			Joins("JOIN tags ON works_tags.tag_id = tags.id").
-			Where("tags.slug = ? AND works.is_published = ?", tagSlug, true).
+			Where("tags.slug = ?", tagSlug).
+			Scopes(published("works")).
 			Preload("Tags").
 			Order("works.published_at DESC").
 			Find(&works).Error; err != nil {
@@ -60,7 +71,7 @@ func GetWorks(c *gin.Context) {
 			return
 		}
 	} else {
-		if err := config.DB.Preload("Tags").Where("is_published = ?", true).Order("published_at DESC").Find(&works).Error; err != nil {
+		if err := config.DB.Preload("Tags").Scopes(published("works")).Order("published_at DESC").Find(&works).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
 			return
 		}
@@ -85,7 +96,7 @@ func GetPostBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	var post models.Post
 
-	if err := config.DB.Preload("Tags").Where("slug = ?", slug).First(&post).Error; err != nil {
+	if err := config.DB.Preload("Tags").Scopes(published("posts")).Where("slug = ?", slug).First(&post).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
 		return
 	}
@@ -97,7 +108,7 @@ func GetWorkBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	var work models.Work
 
-	if err := config.DB.Preload("Tags").Where("slug = ?", slug).First(&work).Error; err != nil {
+	if err := config.DB.Preload("Tags").Scopes(published("works")).Where("slug = ?", slug).First(&work).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
 		return
 	}
@@ -137,54 +148,4 @@ func GetContactLinks(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, links)
-}
-
-func GetPostsByTag(c *gin.Context) {
-	tagSlug := c.Query("tag")
-
-	if tagSlug == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'tag' is required (e.g. ?tag=react)"})
-		return
-	}
-
-	var posts []models.Post
-
-	if err := config.DB.
-		Table("posts").
-		Joins("JOIN posts_tags ON posts.id = posts_tags.post_id").
-		Joins("JOIN tags ON posts_tags.tag_id = tags.id").
-		Where("tags.slug = ?", tagSlug).
-		Preload("Tags").
-		Find(&posts).Error; err != nil {
-
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch posts"})
-		return
-	}
-
-	c.JSON(http.StatusOK, posts)
-}
-
-func GetWorksByTag(c *gin.Context) {
-	tagSlug := c.Query("tag")
-
-	if tagSlug == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'tag' is required"})
-		return
-	}
-
-	var works []models.Work
-
-	if err := config.DB.
-		Table("works").
-		Joins("JOIN works_tags ON works.id = works_tags.work_id").
-		Joins("JOIN tags ON works_tags.tag_id = tags.id").
-		Where("tags.slug = ?", tagSlug).
-		Preload("Tags").
-		Find(&works).Error; err != nil {
-
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch projects"})
-		return
-	}
-
-	c.JSON(http.StatusOK, works)
 }

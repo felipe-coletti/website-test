@@ -76,12 +76,12 @@ func resolvePage(path string, fallbackDescription string) pageMeta {
 
 	if slug, ok := strings.CutPrefix(path, "/blog/"); ok && !strings.Contains(slug, "/") {
 		var post models.Post
-		return detailMeta(meta, config.DB.Where("slug = ? AND is_published = ?", slug, true).First(&post).Error, post.Title, post.Content)
+		return detailMeta(meta, config.DB.Scopes(published("posts")).Where("slug = ?", slug).First(&post).Error, post.Title, post.Content)
 	}
 
 	if slug, ok := strings.CutPrefix(path, "/work/"); ok && !strings.Contains(slug, "/") {
 		var work models.Work
-		return detailMeta(meta, config.DB.Where("slug = ? AND is_published = ?", slug, true).First(&work).Error, work.Title, work.Content)
+		return detailMeta(meta, config.DB.Scopes(published("works")).Where("slug = ?", slug).First(&work).Error, work.Title, work.Content)
 	}
 
 	return notFoundMeta(meta)
