@@ -42,7 +42,7 @@ class HomePage extends HTMLElement {
             <main class="page">
                 <section class="section">
                     <h1>Welcome</h1>
-                    <div class="intro" hidden></div>
+                    <div class="intro content" hidden></div>
                 </section>
                 <section class="section latest" hidden>
                     <h2>Latest blog posts</h2>
