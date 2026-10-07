@@ -27,5 +27,11 @@ export const api = {
     },
     content: {
         get: (key) => request(`/api/content/${encodeURIComponent(key)}`)
+    },
+    about: {
+        get: () => request('/api/about')
+    },
+    contacts: {
+        list: async () => (await request('/api/contacts')) ?? []
     }
 }

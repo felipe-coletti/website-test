@@ -1,6 +1,14 @@
 INSERT INTO site_content (key, value) VALUES
     ('welcome', '<p>I''m Felipe Coletti, a developer who builds things for the web. This is where I share my work and write about what I learn.</p>');
 
+INSERT INTO about (title, content) VALUES
+    ('About', '<p>I''m Felipe Coletti, a developer who builds things for the web.</p>');
+
+INSERT INTO contact_links (type, label, url, position) VALUES
+    ('email', 'Email', 'mailto:hello@example.com', 1),
+    ('github', 'GitHub', 'https://github.com/felipe-coletti', 2),
+    ('linkedin', 'LinkedIn', 'https://www.linkedin.com/in/example', 3);
+
 INSERT INTO tags (name, slug) VALUES
     ('Go', 'go'),
     ('Web Components', 'web-components');
