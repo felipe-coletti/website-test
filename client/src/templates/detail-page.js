@@ -50,6 +50,10 @@ sheet.replaceSync(`
         color: var(--color-text-primary);
     }
 
+    .content :is(ul, ol) {
+        padding-left: 1.25rem;
+    }
+
     .content img {
         max-width: 100%;
     }
