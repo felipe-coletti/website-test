@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 	"website-backend/config"
+	"website-backend/handlers"
 	"website-backend/routes"
 
 	"github.com/gin-contrib/cors"
@@ -68,6 +69,8 @@ func serveClient(r *gin.Engine) {
 	r.Static("/src", filepath.Join(clientDir, "src"))
 	r.StaticFile("/favicon.svg", filepath.Join(clientDir, "favicon.svg"))
 
+	servePage := handlers.ServePage(indexFile)
+
 	r.NoRoute(func(c *gin.Context) {
 		if c.Request.URL.Path == "/api" || strings.HasPrefix(c.Request.URL.Path, "/api/") {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Route not found"})
@@ -79,7 +82,7 @@ func serveClient(r *gin.Engine) {
 			return
 		}
 
-		c.File(indexFile)
+		servePage(c)
 	})
 
 	log.Printf("Serving client from: %s", clientDir)

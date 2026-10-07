@@ -4,6 +4,12 @@ Sem build e sem dependências: o navegador carrega os módulos ES diretamente.
 O servidor Go (`../server`) serve estes arquivos e devolve o `index.html` para qualquer rota
 que não seja `/api/*`, e o `fc-router` resolve a rota no navegador.
 
+Antes de entregar o `index.html`, o servidor preenche `<title>`, `description` e as tags Open Graph
+da rota (título e trecho do post ou projeto em `/blog/:slug` e `/work/:slug`) e responde 404 para
+rotas inexistentes e conteúdos não publicados. Assim buscadores e prévias de links (WhatsApp,
+LinkedIn...), que não executam JavaScript, veem os dados certos. As rotas conhecidas pelo servidor
+ficam em `server/handlers/page.go` e precisam acompanhar `src/routes.js`.
+
 ## Estrutura
 
 ```
@@ -80,7 +86,8 @@ Banco criado antes de `server/db/schema.sql` existir? Rode as migrações:
 - `server/db/migrate-site-content.sql`: cria a tabela `site_content` com o texto de boas-vindas
 - `server/db/migrate-about-contact.sql`: cria as tabelas `about` e `contact_links`
 
-Servidor (configure `server/.env` com `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSLMODE`):
+Servidor (configure `server/.env` com `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_SSLMODE`
+e, em produção, `SITE_URL`, ex: `https://felipecoletti.com`, usada em `og:url` e no link canônico):
 
 ```bash
 cd server && go run .   # http://localhost:8080
